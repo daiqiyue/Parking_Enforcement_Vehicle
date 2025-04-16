@@ -7,6 +7,21 @@ import time
 
 import mysql.connector
 
+def check_plate(cursor, plate_num):
+    try:
+        query = ("select * from plate_info where plate_num = %s")
+        cursor.execute(query, (plate_num,))
+        result = cursor.fetchmany(size=1)
+        print(f"fetch result is: {result} type is: {type(result)}")
+        if not result:
+            return False
+        else:
+            return result  
+        # return plate information in a list. plate_num, owner, 
+    except mysql.connector.Error as err:
+        print(f"Connection failed. Error is: {err}")
+
+
 
 #model = YOLO('./models/best.pt')    
 def main():     
@@ -21,6 +36,16 @@ def main():
     detected = deque()
     reader = easyocr.Reader(["en"])
     most_common = "waiting"
+
+    # Set connection to the server
+    ############################################################
+    try:
+        cnx = mysql.connector.connect(user = 'nano', password = '12345678', database = 'license_plate')
+        cursor = cnx.cursor()
+    except mysql.connector.Error as err:
+        print(f"Connection failed. Error is: {err}")
+    ############################################################
+
     license_plate_number_list = deque()
     x1 = 0
     y1 = 0
@@ -109,7 +134,10 @@ def main():
                 print(f"most common result is: {most_common}")
                 
                 cv2.putText(frame, most_common[0][0], (int(x1), int(y1 + 100)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 2)
-
+                
+                plate = "QD7777"
+                info = check_plate(cursor, plate)
+                print(info)
 
                 
                 if frame is None:

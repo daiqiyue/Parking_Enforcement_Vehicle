@@ -6,11 +6,16 @@ def main():
         cnx = mysql.connector.connect(user = 'root', password = 'Dqy20030729@', host = 'localhost', database = "license_plate")
         print("Successfully connected to the database")
         cursor = cnx.cursor()
-        query = ("select * from plate_info")
-        cursor.execute(query)
-        print(cursor)
-        for element in cursor:
-            print(f"element is: {element}")
+        query = ("select * from plate_info where plate_num = %s")
+        cursor.execute(query, ("VL199",))
+        result = cursor.fetchmany(size=1)
+        print(result)   
+        print(f"result type is {type(result)}")
+        if not result:
+            print("none")
+        
+        #for element in cursor:
+        #    print(f"element is: {element}")
 
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
